@@ -120,14 +120,14 @@ async function createTestCase(suiteId, sectionId, testCase) {
   
 
         let response = await api.post(`/add_case/${sectionId}`, body);
-        // console.log("------------")
-        // console.log(response);
-        // console.log("------------")
-        if (response.status === 200 || response.status === 201) {
-            console.log('Test case added successfully');
-          } else {
-            throw new Error(`❌ Failed to create case`);
-          }
+        // // console.log("------------")
+        // // console.log(response);
+        // // console.log("------------")
+        // if (response.status === 200 || response.status === 201) {
+        //     console.log('Test case added successfully');
+        //   } else {
+        //     throw new Error(`❌ Failed to create case`);
+        //   }
 
   
     const result = await response.data;
@@ -149,6 +149,29 @@ async function createTestCase(suiteId, sectionId, testCase) {
   
     console.log("🎉 All test cases processed.");
   }
+
+  export async function createSection(projectId, suiteId, parentSectionId, sectionName) {
+    try {
+      const body = {
+        suite_id: suiteId,
+        parent_id: parentSectionId,
+        name: sectionName
+      };
+  
+      const response = await api.post(`/add_section/${projectId}`, body);
+  
+      if (response.status === 200 || response.status === 201) {
+        console.log(`📁 Section "${sectionName}" created successfully (ID: ${response.data.id})`);
+        return response.data.id;
+      } else {
+        throw new Error(`❌ Failed to create section`);
+      }
+    } catch (err) {
+      console.error('🚨 Error creating section:', err.response?.data || err.message);
+      return null;
+    }
+  }
+  
 
 //   const casesTOAdd=[
 //     {

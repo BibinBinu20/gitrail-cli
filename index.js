@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import dotenv from 'dotenv';
-import { getCasesByTicket, createCasesInTestRail } from './testrail.js'; 
+import { getCasesByTicket, createCasesInTestRail, createSection } from './testrail.js';
 import { processPullRequestDetails } from "./github.js";
 
 dotenv.config();
@@ -22,7 +22,7 @@ program
   .option('-t, --ticket <ticketId>', 'Jira ticket ID (e.g. CD-123456)')
   .action(async (opts) => {
     const { project, suite, section, ticket, pr } = opts;
-    
+
     const githubProcessedData = await processPullRequestDetails("coupa", "coupa_development", pr);
     const ticketId = ticket || githubProcessedData.prDetails.jiraTicket;
 
@@ -33,20 +33,18 @@ program
 
     let matchingSectionID = await getCasesByTicket(project, suite, section, ticketId);
 
-    if(matchingSectionID!=null)     //already present add in that
-    {
-   if (githubProcessedData.aiJson && githubProcessedData.aiJson.addedTests?.length) {
-    console.log(`📝 Found ${githubProcessedData.aiJson.addedTests.length} new test(s) to add.`);
-    await createCasesInTestRail( project, suite, matchingSectionID ,githubProcessedData.aiJson.addedTests);
-  } else {
-    console.log('✅ No new test cases to add.');
-  }
-    }
-    else{     
-      console.log("No maching section Found --- Creating one Section");
+    if (!matchingSectionID) {
+      console.log("🆕 No matching section found. Creating a new one...");
+      matchingSectionID = await createSection(project, suite, section, ticketId); 
+      console.log(`✅ Created section '${ticketId}' with ID: ${matchingSectionID}`);
     }
 
-
+    if (githubProcessedData.aiJson && githubProcessedData.aiJson.addedTests?.length) {
+      console.log(`📝 Found ${githubProcessedData.aiJson.addedTests.length} new test(s) to add.`);
+      await createCasesInTestRail(project, suite, matchingSectionID, githubProcessedData.aiJson.addedTests);
+    } else {
+      console.log('✅ No new test cases to add.');
+    }
   });
 
 program.parse(process.argv);
