@@ -10,6 +10,10 @@ export function green(text) {
     return `\x1b[36m${text}\x1b[0m`;
   }
 
+  export function magenta(text) {
+    return `\x1b[35m${text}\x1b[0m`;
+  }
+
 
 export function createLoader(message, colorFn = text => text, icon = '🔍') {
   const dots = ['', '.', '..', '...','....'];

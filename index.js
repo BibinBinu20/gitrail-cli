@@ -3,13 +3,19 @@ import { Command } from 'commander';
 import dotenv from 'dotenv';
 import { getCasesByTicket, createCasesInTestRail, createSection } from './testrail.js';
 import { processPullRequestDetails } from "./github.js";
+import { displayBanner } from './banner.js';
 
 dotenv.config();
 const program = new Command();
 
+
+if (process.argv.length <= 2 || !['sync', 'cases'].includes(process.argv[2])) {
+    displayBanner();
+  }
+
 program
   .name('gitrail-cli')
-  .description('🚀 Send GitHub PR Test Cases to TestRail or extract as JSON')
+  .description('🚀 CLI To Sync PR Test Cases to TestRail')
   .version('1.0.0');
 
 // Full Sync to TestRail
