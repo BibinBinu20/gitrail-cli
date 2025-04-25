@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-bedrock": "^3.791.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.787.0",
+    "@octokit/rest": "^21.1.1",
+    "axios": "^1.8.4",
+    "commander": "^13.1.0",
+    "dotenv": "^16.5.0",
+    "node-fetch": "^3.3.2"
+  },
+  "name": "gitrail-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "test-debug.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "gitrail-cli": "./index.js"
+  },
+  "keywords": [],
+  "author": "Bibin Binu",
+  "license": "ISC",
+  "description": "A CLI tool to push GitHub PR test cases to TestRail."
+}
