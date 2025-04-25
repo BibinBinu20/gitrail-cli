@@ -11,7 +11,7 @@
   "name": "gitrail-cli",
   "version": "1.0.0",
   "type": "module",
-  "main": "test-debug.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,5 +21,5 @@
   "keywords": [],
   "author": "Bibin Binu",
   "license": "ISC",
-  "description": "A CLI tool to push GitHub PR test cases to TestRail."
+  "description": "A CLI tool to sync GitHub PR test cases to TestRail."
 }

@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import { Octokit } from '@octokit/core';
 import { sendRequestToClaude } from './gen-ai.js'; 
+import { is_debug } from './helpers/env_helper.js';
+import { green , cyan , createLoader } from './helpers/text_style.js';
 
 dotenv.config();
 
@@ -21,18 +23,18 @@ async function getPullRequestDetails(owner, repo, pullNumber) {
     const pr = response.data;
 
     const jiraTicket = extractJiraTicket(pr.body);
-    console.log(`🎫 JIRA Ticket: ${jiraTicket}`);
+    console.log(`🎫 JIRA Ticket: ${jiraTicket}\n`);
 
     const testFiles = await getChangedTestFiles(owner, repo, pullNumber);
-    console.log('📂 Filtered Test Files:', testFiles);
+    console.log('📂 Filtered Test Files:', testFiles, '\n');
 
     const fileDiffs = await getDiffsForTestFiles(owner, repo, pullNumber, testFiles);
-    console.log('📄 Diffs for Test Files:', fileDiffs);
+    is_debug() && console.log('📄 Diffs for Test Files:', fileDiffs, '\n');
 
     return { jiraTicket, testFiles, fileDiffs };
 
   } catch (error) {
-    console.error('❌ Failed to fetch PR details:', error.message);
+    console.error('❌ Failed to fetch PR details:', error.message, '\n');
     return null;
   }
 }
@@ -42,7 +44,7 @@ function extractJiraTicket(description) {
   const jiraPattern = /\[MAIN_JIRA\]:\s*(https:\/\/\S+\/browse\/[A-Z]+-\d+)/;
   const match = description.match(jiraPattern);
   if (match && match[1]) {
-    return match[1].split('/').pop(); // Extract just the ticket ID (e.g., CD-502495)
+    return match[1].split('/').pop();
   }
   return null;
 }
@@ -98,23 +100,24 @@ export async function processPullRequestDetails(owner, repo, pullNumber) {
     const prDetails = await getPullRequestDetails(owner, repo, pullNumber);
   
     if (prDetails.testFiles.length>0) {
-    //   console.log('JIRA Ticket:', prDetails.jiraTicket);
-    //   console.log('Test Files:', prDetails.testFiles);
-    //   console.log('File Diffs:', prDetails.fileDiffs);
 
     const diffString = Object.entries(prDetails.fileDiffs)
     .map(([filePath, patch]) => `--- ${filePath} ---\n${patch}`)
     .join("\n\n");
 
-    console.log('🤖 Processing Diffs using GEN-AI');
+
+    let loader = createLoader("Processing Test Cases from PR",cyan)
+
        const aiJson =  await sendRequestToClaude(diffString);
-        console.log('✅ Processing Complete');
+
+       loader.stop();
+
+        !is_debug() && console.log(JSON.stringify(aiJson, null, 2)); 
+
+        console.log(`\n✅ ${green("Processing Complete")}\n`);
 
         return { prDetails, aiJson };
     }
     return {prDetails,aiJson: null};
   }
-
-
-//    processPullRequestDetails('coupa', 'coupa_development', 134701);
 

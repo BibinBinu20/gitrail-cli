@@ -1,5 +1,7 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 import dotenv from "dotenv";
+import  { is_debug }  from './helpers/env_helper.js';
+import { green } from "./helpers/text_style.js"
 
 dotenv.config();
 
@@ -41,21 +43,20 @@ You are an expert in RSpec, Capybara, and SitePrism. Given diffs in unified form
 ⚠️ Important:
 - No complex steps — keep it short, clear, and BDD-style.
 - Use RSpec/Capybara/SitePrism expertise to understand structure, including shared examples.
-- Only return a clean JSON response. No other text.
-- If no test changes found, return:
-\\\`\\\`\\\`json
+- **Absolutely do NOT include any text or explanation outside the <json> json-content </json> — nothing before or after.**
+- Only return a clean JSON response in the format:
+<json>
 {
   "addedTests": [],
   "deletedTests": []
 }
-\\\`\\\`\\\`
+</json>
 
-- do not reply anything other than this format
+- If no test changes are found, return the above structure exactly.
 
 Input below is RSpec diff:
 ----RSPEC DIFF----
 `;
-
 
 
 export async function sendRequestToClaude(diff) {
@@ -65,7 +66,7 @@ export async function sendRequestToClaude(diff) {
       messages: [
         {
           role: "user",
-          content: masterPrompt + diff,  
+          content: masterPrompt + diff,   
         },
       ],
       max_tokens: 1000,
@@ -82,15 +83,15 @@ export async function sendRequestToClaude(diff) {
     const responseBody = await response.body.transformToString();
     const parsedResponse = JSON.parse(responseBody);
     const jsonText = parsedResponse?.content?.[0]?.text;
-     console.log("✅ Clause Response :")
+
+    is_debug() && ( console.log("✅ AI Response : \n") , console.log(jsonText) );
 
     if (jsonText) {
-        const jsonString = jsonText.replace(/^[\s\S]*?```json\s*|\s*```[\s\S]*$/g, '').trim();
-    //   console.log(jsonString);
+        const jsonString = jsonText.replace(/^[\s\S]*?<json>\s*|\s*<\/json>[\s\S]*$/g, '').trim();
       const parsedJson = JSON.parse(jsonString);
   
 
-        console.log(JSON.stringify(parsedJson, null, 2)); 
+    //  !is_debug() && console.log(JSON.stringify(parsedJson, null, 2)); 
       return parsedJson;
   }
  } catch (error) {

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import axios from 'axios';
 import dotenv from 'dotenv';
+import { is_debug } from './helpers/env_helper.js';
+import { createLoader,green,cyan } from './helpers/text_style.js';
+
 dotenv.config();
 const { TESTRAIL_DOMAIN, TESTRAIL_USER: EMAIL, TESTRAIL_KEY: API_KEY } = process.env;
 
@@ -56,15 +59,16 @@ async function fetchAllSections(projectId, suiteId) {
   }
 
 async function getSubSections(projectId, suiteId, parentSectionId) {
-    console.log("📡 Fetching cases from:", api.defaults.baseURL);
+    console.log("📡 Fetching TestRail suite status", is_debug() ? " from "+api.defaults.baseURL : '', "\n");
   try {
     const allSections = await fetchAllSections(projectId, suiteId);
     
     let res = allSections.filter(sec => sec.parent_id == parentSectionId);
-          console.log(`📁 Sub-sections of section ${parentSectionId}:`);
+
+     is_debug() && (console.log(`📁 Sub-sections of section ${parentSectionId}:`),
       res.forEach(sec => {
         console.log(`- [${sec.id}] ${sec.name}`);
-      });
+      }));
 
     return res;
   
@@ -83,16 +87,16 @@ export async function getCasesByTicket(projectId, suiteId, parentSectionId, tick
     if (!matchingSection) {
       return null;
     }
-    // console.log(matchingSection);
 
     const sectionId = matchingSection.id;
     const res = await api.get(`/get_cases/${projectId}&suite_id=${suiteId}&section_id=${sectionId}`);
     const cases = res.data.cases || [];
 
-    console.log(`✅ Found ${cases.length} cases in section [${sectionId}] "${matchingSection.name}"`);
+    is_debug() && (
+    console.log(`✅ Found ${cases.length} cases in section [${sectionId}] "${matchingSection.name}" \n`),
     cases.forEach(tc => {
       console.log(`- [${tc.id}] ${tc.title}`);
-    });
+    }));
 
     return matchingSection.id;
   } catch (err) {
@@ -104,12 +108,9 @@ export async function getCasesByTicket(projectId, suiteId, parentSectionId, tick
   
 
 async function createTestCase(suiteId, sectionId, testCase) {
-    // console.log(testCase);
     const body = {
       title: testCase.name,
-    //   type_id: testCase.type === 'feature' ? 2 : 3, 
-    custom_category: testCase.type == 'unit' ? 6 : 1,
-    //   priority_id: 2, // default priority
+      custom_category: testCase.type == 'unit' ? 6 : 1,
       suite_id: suiteId,
       custom_preconds: testCase.preconditions,
       custom_steps: testCase.steps.map((step, index) => `${index + 1}. ${step}`).join('\n'),
@@ -117,18 +118,7 @@ async function createTestCase(suiteId, sectionId, testCase) {
       custom_comments: testCase.comments,
       custom_release_no: 97
     };
-  
-
         let response = await api.post(`/add_case/${sectionId}`, body);
-        // // console.log("------------")
-        // // console.log(response);
-        // // console.log("------------")
-        // if (response.status === 200 || response.status === 201) {
-        //     console.log('Test case added successfully');
-        //   } else {
-        //     throw new Error(`❌ Failed to create case`);
-        //   }
-
   
     const result = await response.data;
     return result;
@@ -136,18 +126,18 @@ async function createTestCase(suiteId, sectionId, testCase) {
   
   
   export async function createCasesInTestRail(projectId, suiteId, sectionId, addedTests) {
-    console.log(`🧪 Creating ${addedTests.length} test case(s) in TestRail...`);
+    console.log(`🧪 Creating ${addedTests.length} test case(s) in TestRail... \n`);
   
     for (let testCase of addedTests) {
       try {
         let created = await createTestCase(suiteId, sectionId, testCase);
-        console.log(`✅ Created: ${created.title} (ID: ${created.id})`);
+        console.log(`✅ Created: ${created.title} (ID: ${created.id})\n`);
       } catch (err) {
         console.error(err);
       }
     }
+    console.log(`🟢 ${green("All test cases are added to TestRail")} \n`);
   
-    console.log("🎉 All test cases processed.");
   }
 
   export async function createSection(projectId, suiteId, parentSectionId, sectionName) {
@@ -161,43 +151,13 @@ async function createTestCase(suiteId, sectionId, testCase) {
       const response = await api.post(`/add_section/${projectId}`, body);
   
       if (response.status === 200 || response.status === 201) {
-        console.log(`📁 Section "${sectionName}" created successfully (ID: ${response.data.id})`);
+        console.log(`📁 Section "${sectionName}" created successfully (ID: ${response.data.id}) \n`);
         return response.data.id;
       } else {
-        throw new Error(`❌ Failed to create section`);
+        throw new Error(`❌ Failed to create section \n`);
       }
     } catch (err) {
       console.error('🚨 Error creating section:', err.response?.data || err.message);
       return null;
     }
   }
-  
-
-//   const casesTOAdd=[
-//     {
-//         "name": "with supplier managed inventory valid data without order line adds errors when order line referenced in CSV could not be found when reorder is supplier managed",
-//         "type": "unit",
-//         "preconditions": "Allow inventory collaboration, have valid managed by supplier row data without an order line",
-//         "steps": [
-//           "Create a reorder alert using the CSV loader with valid managed by supplier data but no order line",
-//           "Attempt to save the reorder alert"
-//         ],
-//         "expectedResult": "The reorder alert should not be saved and should have errors related to the order line",
-//         "testData": "Valid managed by supplier row data without order line",
-//         "comments": "spec/models/csv_reorder_alert_load_spec.rb"
-//       },
-//       {
-//         "name": "does not throw error if adding invalid type to minmax",
-//         "type": "unit",
-//         "preconditions": "Have valid row data with ManagedBySupplier type",
-//         "steps": [
-//           "Create a reorder alert with type set to ManagedBySupplier",
-//           "Check for errors on the type field"
-//         ],
-//         "expectedResult": "The type field should not have errors about valid type values",
-//         "testData": "Valid row with Type set to ManagedBySupplier",
-//         "comments": "spec/models/csv_reorder_alert_load_spec.rb"
-//       }
-//   ]
-
-//   createCasesInTestRail(1,6675,219662,casesTOAdd)
