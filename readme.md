@@ -1,4 +1,4 @@
-# 📦 gitrail-cli
+# 📦 GitRail-cli
 
 > 🚀 A CLI tool to sync GitHub PR test cases into TestRail automatically.
 
