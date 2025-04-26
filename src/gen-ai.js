@@ -30,7 +30,7 @@ You are an expert in RSpec, Capybara, and SitePrism. Given diffs in unified form
    - Classify as \`"feature"\` (UI steps like \`visit\`, \`click\`, \`page\`) or \`"unit"\` (no UI).
    - Include:
      - \`"name"\`: Title (include parent context if any)
-     - \`"type"\`: \`"feature"\` or \`"unit"\`
+     - \`"type"\`: \`"feature"\` or \`"unit"\` or \`"integration(CSV,CXML,API)"\`
      - \`"preconditions"\`: Any required setup
      - \`"steps"\`: Keep minimal (1 per logical block, simple wording)
      - \`"expectedResult"\`

@@ -10,12 +10,8 @@ const { TESTRAIL_DOMAIN, TESTRAIL_USER: EMAIL, TESTRAIL_KEY: API_KEY } = process
 
 const categoryValues = {
     '1': 'Functional (UI)',
-    '2': 'Functional (Request)',
     '3': 'Integration (API/CSV/CXML/SFTP/Export)',
     '6': 'Unit Test',
-    '7': 'Unit-UI Test',
-    '8': 'API',
-    '9': 'CXML',
   };
 
 const auth = Buffer.from(`${EMAIL}:${API_KEY}`).toString('base64');
@@ -60,7 +56,7 @@ async function getSubSections(projectId, suiteId, parentSectionId) {
 
      is_debug() && (console.log(`📁 Sub-sections of section ${parentSectionId}:`),
       res.forEach(sec => {
-        console.log(`- [${sec.id}] ${sec.name}`);
+        console.log(`- [${sec.id}] ${sec.name}\n`);
       }));
 
     return res;
@@ -100,16 +96,17 @@ async function getCasesByTicket(projectId, suiteId, parentSectionId, ticketId) {
 
   
 
-async function createTestCase(suiteId, sectionId, testCase) {
+async function createTestCase(suiteId, sectionId, testCase, releaseId) {
     const body = {
       title: testCase.name,
-      custom_category: testCase.type == 'unit' ? 6 : 1,
+      custom_category: testCase.type == 'unit' ? 6 : (testCase.type == 'feature' ? 1 : 3),
       suite_id: suiteId,
+      type_id: 10, //automated type value
       custom_preconds: testCase.preconditions,
       custom_steps: testCase.steps.map((step, index) => `${index + 1}. ${step}`).join('\n'),
       custom_test_data: testCase.testData,
       custom_comments: `${testCase.comments || ''}\n\n${getCLINote()}`,
-      custom_release_no: 97
+      custom_release_no: releaseId
     };
         let response = await api.post(`/add_case/${sectionId}`, body);
   
@@ -120,10 +117,11 @@ async function createTestCase(suiteId, sectionId, testCase) {
   
 async function createCasesInTestRail(projectId, suiteId, sectionId, addedTests) {
     console.log(`🧪 Creating ${addedTests.length} test case(s) in TestRail... \n`);
-  
+    
+    let releaseId = await detectReleaseFromSection(sectionId);
     for (let testCase of addedTests) {
       try {
-        let created = await createTestCase(suiteId, sectionId, testCase);
+        let created = await createTestCase(suiteId, sectionId, testCase, releaseId);
         console.log(`✅ Created: ${created.title} (ID: ${created.id})\n`);
       } catch (err) {
         console.error(err);
@@ -154,6 +152,71 @@ async function createCasesInTestRail(projectId, suiteId, sectionId, addedTests) 
       return null;
     }
   }
+
+  async function getReleaseIdFromName(releaseName) {
+    try {
+      const { data: fields } = await api.get('/get_case_fields');
+  
+      const releaseField = fields.find(f => f.system_name === 'custom_release_no');
+      if (!releaseField) {
+        throw new Error('custom_release_no field not found.');
+      }
+  
+      let allItems = [];
+  
+      for (const config of releaseField.configs) {
+        const itemsStr = config.options?.items;
+        if (!itemsStr) continue;
+  
+        const parsedItems = itemsStr.split('\n').map(line => {
+          const [id, name] = line.split(',').map(s => s.trim());
+          return { id: parseInt(id, 10), name };
+        });
+  
+        allItems = allItems.concat(parsedItems);
+      }
+  
+      const match = allItems.find(item => item.name === releaseName);
+  
+      if (match) {
+        return match.id;
+      } else {
+        // Take last available ID
+        const lastItem = allItems[allItems.length - 1];
+       is_debug() && console.log(`⚠️ Release name not found. Falling back to last ID: ${lastItem.id}\n`);
+        return lastItem.id;
+      }
+  
+    } catch (err) {
+      console.error('❌ Failed to fetch release ID:', err.message);
+      throw err;
+    }
+  }
+  
+
+  async function detectReleaseFromSection(startingSectionId) {
+    let currentSectionId = startingSectionId;
+    let rootSectionName = null;
+  
+    // Traverse upwards until we find the root (no parent)
+    while (true) {
+      const response = await api.get(`/get_section/${currentSectionId}`);
+      const section = response.data;
+  
+      if (!section.parent_id) {
+        const match = section.name.trim().match(/^R\d+/);
+        rootSectionName = match ? match[0] : section.name.trim();  // handle cases like R23 Sample
+        break;
+      }
+  
+      currentSectionId = section.parent_id;
+    }
+    let releaseID = await getReleaseIdFromName(rootSectionName);
+    return releaseID;
+  }
+  
+
+ 
 
   module.exports = {
     createSection,
