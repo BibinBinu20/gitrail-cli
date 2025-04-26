@@ -5,7 +5,6 @@ const { green, cyan } = require('./helpers/text_style.js');
 
 dotenv.config();
 
-
 const AWS_REGION = process.env.AWS_REGION;
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
@@ -58,48 +57,79 @@ Input below is RSpec diff:
 ----RSPEC DIFF----
 `;
 
-
-async function sendRequestToClaude(diff) {
+function safeJsonParse(str) {
   try {
-    const body = {
-      anthropic_version: "bedrock-2023-05-31",
-      messages: [
-        {
-          role: "user",
-          content: masterPrompt + diff,   
-        },
-      ],
-      max_tokens: 1000,
-    };
-
-    const command = new InvokeModelCommand({
-      modelId: CLAUDE_MODEL_ID,
-      contentType: "application/json",
-      accept: "application/json",
-      body: JSON.stringify(body),
-    });
-
-    const response = await client.send(command);
-    const responseBody = await response.body.transformToString();
-    const parsedResponse = JSON.parse(responseBody);
-    const jsonText = parsedResponse?.content?.[0]?.text;
-
-    is_debug() && ( console.log("✅ AI Response : \n") , console.log(jsonText) );
-
-    if (jsonText) {
-        const jsonString = jsonText.replace(/^[\s\S]*?<json>\s*|\s*<\/json>[\s\S]*$/g, '').trim();
-      const parsedJson = JSON.parse(jsonString);
-  
-
-    //  !is_debug() && console.log(JSON.stringify(parsedJson, null, 2)); 
-      return parsedJson;
-  }
- } catch (error) {
-    console.error("❌ Error making request to Claude via Bedrock:", error);
+    return { parsed: JSON.parse(str), error: null };
+  } catch (err) {
+    return { parsed: null, error: err };
   }
 }
 
-module.exports = {
-    sendRequestToClaude
-  };
+function extractJsonBlock(text) {
+    const hasStart = text.includes('<json>');
+    const hasEnd = text.includes('</json>');
+  
+    if (hasStart && hasEnd) {
+      const match = text.match(/<json>([\s\S]*?)<\/json>/);
+      if (match) {
+        return match[1].trim();
+      }
+    }
+  
+    throw new Error("Failed to Process case, Please Try Again.");
+  }
+  
+  async function sendRequestToClaude(diff, isRetry = false) {
+    try {
+      const body = {
+        anthropic_version: "bedrock-2023-05-31",
+        messages: [
+          {
+            role: "user",
+            content: masterPrompt + diff,
+          },
+        ],
+        max_tokens: 1000,
+      };
+  
+      const command = new InvokeModelCommand({
+        modelId: CLAUDE_MODEL_ID,
+        contentType: "application/json",
+        accept: "application/json",
+        body: JSON.stringify(body),
+      });
+  
+      const response = await client.send(command);
+      const responseBody = await response.body.transformToString();
+      const parsedResponse = JSON.parse(responseBody);
+      const jsonText = parsedResponse?.content?.[0]?.text;
+  
+      is_debug() && console.log("✅ AI Response : \n", jsonText);
+  
+      if (jsonText) {
+        try {
+          const jsonString = extractJsonBlock(jsonText);
+          const parsedJson = JSON.parse(jsonString);
+          return parsedJson;
+        } catch (parseError) {
+          if (!isRetry) {
+            console.warn("⚠️ First parse failed. Retrying once...");
+            return await sendRequestToClaude(diff, true);
+          } else {
+            throw new Error("Failed to Process case, Please Try Again.");
+          }
+        }
+      } else {
+        throw new Error("Empty AI Response.");
+      }
+    } catch (error) {
+      console.error("❌ Error making request to Claude : ", error.message || error);
+      throw error; 
+    }
+  }
+  
+  
 
+module.exports = {
+  sendRequestToClaude
+};

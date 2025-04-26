@@ -23,7 +23,6 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "nexe": "^5.0.0-beta.4",
     "pkg": "^5.8.1"
   },
   "pkg": {
