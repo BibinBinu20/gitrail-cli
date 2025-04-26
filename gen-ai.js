@@ -1,7 +1,7 @@
-import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
-import dotenv from "dotenv";
-import  { is_debug }  from './helpers/env_helper.js';
-import { green } from "./helpers/text_style.js"
+const { BedrockRuntimeClient, InvokeModelCommand } = require("@aws-sdk/client-bedrock-runtime");
+const dotenv = require('dotenv');
+const { is_debug } = require('./helpers/env_helper.js');
+const { green, cyan } = require('./helpers/text_style.js');
 
 dotenv.config();
 
@@ -59,7 +59,7 @@ Input below is RSpec diff:
 `;
 
 
-export async function sendRequestToClaude(diff) {
+async function sendRequestToClaude(diff) {
   try {
     const body = {
       anthropic_version: "bedrock-2023-05-31",
@@ -98,4 +98,8 @@ export async function sendRequestToClaude(diff) {
     console.error("❌ Error making request to Claude via Bedrock:", error);
   }
 }
+
+module.exports = {
+    sendRequestToClaude
+  };
 

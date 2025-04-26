@@ -1,25 +1,36 @@
 {
-  "dependencies": {
-    "@aws-sdk/client-bedrock": "^3.791.0",
-    "@aws-sdk/client-bedrock-runtime": "^3.787.0",
-    "@octokit/rest": "^21.1.1",
-    "axios": "^1.8.4",
-    "commander": "^13.1.0",
-    "dotenv": "^16.5.0",
-    "node-fetch": "^3.3.2"
-  },
   "name": "gitrail-cli",
   "version": "1.0.0",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "A CLI tool to sync GitHub PR test cases to TestRail.",
+  "author": "Bibin Binu",
+  "license": "ISC",
+  "main": "./index.js",
   "bin": {
     "gitrail-cli": "./index.js"
   },
-  "keywords": [],
-  "author": "Bibin Binu",
-  "license": "ISC",
-  "description": "A CLI tool to sync GitHub PR test cases to TestRail."
+  "scripts": {
+    "build:mac": "pkg . --targets node18-macos-arm64 --output dist/gitrail-cli-mac-arm64",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock": "^3.791.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.787.0",
+    "@octokit/core": "^2.5.4",
+    "@octokit/rest": "^21.1.1",
+    "axios": "^0.21.1",
+    "commander": "^13.1.0",
+    "dotenv": "^16.5.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nexe": "^5.0.0-beta.4",
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "assets": [],
+    "targets": [
+      "node18-macos-arm64"
+    ],
+    "outputPath": "dist"
+  }
 }

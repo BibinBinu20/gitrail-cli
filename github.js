@@ -1,9 +1,9 @@
-import dotenv from 'dotenv';
-import fetch from 'node-fetch';
-import { Octokit } from '@octokit/core';
-import { sendRequestToClaude } from './gen-ai.js'; 
-import { is_debug } from './helpers/env_helper.js';
-import { green , cyan , createLoader } from './helpers/text_style.js';
+const dotenv = require('dotenv');
+const fetch = require('node-fetch');
+const { Octokit } = require('@octokit/core');
+const { sendRequestToClaude } = require('./gen-ai.js');
+const { is_debug } = require('./helpers/env_helper.js');
+const { green, cyan, createLoader } = require('./helpers/text_style.js');
 
 dotenv.config();
 
@@ -96,7 +96,7 @@ async function getDiffsForTestFiles(owner, repo, pullNumber, testFiles) {
   }
 }
 
-export async function processPullRequestDetails(owner, repo, pullNumber) {
+async function processPullRequestDetails(owner, repo, pullNumber) {
     const prDetails = await getPullRequestDetails(owner, repo, pullNumber);
   
     if (prDetails.testFiles.length>0) {
@@ -121,3 +121,6 @@ export async function processPullRequestDetails(owner, repo, pullNumber) {
     return {prDetails,aiJson: null};
   }
 
+  module.exports = {
+    processPullRequestDetails
+  };

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { Command } from 'commander';
-import dotenv from 'dotenv';
-import { getCasesByTicket, createCasesInTestRail, createSection } from './testrail.js';
-import { processPullRequestDetails } from "./github.js";
-import { displayBanner } from './banner.js';
+const { Command } = require('commander');
+const dotenv = require('dotenv');
+const { getCasesByTicket, createCasesInTestRail, createSection } = require('./testrail.js');
+const { processPullRequestDetails } = require("./github.js");
+const { displayBanner } = require('./banner.js');
 
 dotenv.config();
 const program = new Command();

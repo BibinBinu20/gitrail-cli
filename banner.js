@@ -1,5 +1,5 @@
-import { green , red , cyan , magenta} from "./helpers/text_style.js"
-export function displayBanner(){
+const { green, cyan , red , magenta } = require('./helpers/text_style.js');
+function displayBanner(){
     console.log(cyan(`
         ██████╗  ██╗████████╗ ██████╗  █████╗ ██╗██╗     
         ██╔════╝ ██║╚══██╔══╝ ██╔══██╗██╔══██╗██║██║     
@@ -9,3 +9,7 @@ export function displayBanner(){
          ╚═════╝ ╚═╝   ╚═╝    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝                                                
         `));
 }
+
+module.exports = {
+    displayBanner
+  };

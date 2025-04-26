@@ -1,22 +1,21 @@
-export function green(text) {
-    return `\x1b[32m${text}\x1b[0m`;
-  }
-  
-  export function red(text) {
-    return `\x1b[31m${text}\x1b[0m`;
-  }
-  
-  export function cyan(text) {
-    return `\x1b[36m${text}\x1b[0m`;
-  }
+function green(text) {
+  return `\x1b[32m${text}\x1b[0m`;
+}
 
-  export function magenta(text) {
-    return `\x1b[35m${text}\x1b[0m`;
-  }
+function red(text) {
+  return `\x1b[31m${text}\x1b[0m`;
+}
 
+function cyan(text) {
+  return `\x1b[36m${text}\x1b[0m`;
+}
 
-export function createLoader(message, colorFn = text => text, icon = '🔍') {
-  const dots = ['', '.', '..', '...','....'];
+function magenta(text) {
+  return `\x1b[35m${text}\x1b[0m`;
+}
+
+function createLoader(message, colorFn = text => text, icon = '🔍') {
+  const dots = ['', '.', '..', '...', '....'];
   let i = 0;
 
   const interval = setInterval(() => {
@@ -24,7 +23,7 @@ export function createLoader(message, colorFn = text => text, icon = '🔍') {
   }, 400);
 
   return {
-    stop(finalMsg = null, finalColor = green , finalIcon = '✅') {
+    stop(finalMsg = null, finalColor = green, finalIcon = '✅') {
       clearInterval(interval);
       process.stdout.write('\n');
       if (finalMsg) {
@@ -34,3 +33,10 @@ export function createLoader(message, colorFn = text => text, icon = '🔍') {
   };
 }
 
+module.exports = {
+  green,
+  red,
+  cyan,
+  magenta,
+  createLoader
+};

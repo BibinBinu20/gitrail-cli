@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import axios from 'axios';
-import dotenv from 'dotenv';
-import { is_debug } from './helpers/env_helper.js';
-import { createLoader,green,cyan } from './helpers/text_style.js';
+const axios = require('axios');
+const dotenv = require('dotenv');
+const { is_debug } = require('./helpers/env_helper.js');
+const { createLoader, green, cyan } = require('./helpers/text_style.js');
 
 dotenv.config();
 const { TESTRAIL_DOMAIN, TESTRAIL_USER: EMAIL, TESTRAIL_KEY: API_KEY } = process.env;
@@ -78,11 +78,11 @@ async function getSubSections(projectId, suiteId, parentSectionId) {
   }
 }
 
-export async function getCasesByTicket(projectId, suiteId, parentSectionId, ticketId) {
+async function getCasesByTicket(projectId, suiteId, parentSectionId, ticketId) {
     //  console.log(projectId+" "+suiteId+" "+parentSectionId+" "+ticketId);
   try {
     const subSections = await getSubSections(projectId, suiteId, parentSectionId);
-    const matchingSection = subSections.find(sec => sec.name.startsWith(`${ticketId} `));
+    const matchingSection = subSections.find(sec => sec.name.startsWith(`${ticketId}`));
 
     if (!matchingSection) {
       return null;
@@ -125,7 +125,7 @@ async function createTestCase(suiteId, sectionId, testCase) {
   }
   
   
-  export async function createCasesInTestRail(projectId, suiteId, sectionId, addedTests) {
+async function createCasesInTestRail(projectId, suiteId, sectionId, addedTests) {
     console.log(`🧪 Creating ${addedTests.length} test case(s) in TestRail... \n`);
   
     for (let testCase of addedTests) {
@@ -140,7 +140,7 @@ async function createTestCase(suiteId, sectionId, testCase) {
   
   }
 
-  export async function createSection(projectId, suiteId, parentSectionId, sectionName) {
+  async function createSection(projectId, suiteId, parentSectionId, sectionName) {
     try {
       const body = {
         suite_id: suiteId,
@@ -161,3 +161,9 @@ async function createTestCase(suiteId, sectionId, testCase) {
       return null;
     }
   }
+
+  module.exports = {
+    createSection,
+    createCasesInTestRail,
+    getCasesByTicket
+  };
