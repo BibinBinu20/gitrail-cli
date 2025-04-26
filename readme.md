@@ -44,10 +44,11 @@ cp .sample.env .env
 export AWS_REGION=your-region
 export AWS_ACCESS_KEY_ID=your-key
 export AWS_SECRET_ACCESS_KEY=your-secret
-export TESTRAIL_USERNAME=your-username
-export TESTRAIL_APIKEY=your-api-key
-export TESTRAIL_URL=https://yourcompany.testrail.io/
-export GITHUB_TOKEN=your-github-token
+CLAUDE_MODEL=us.anthropic.xx-model
+TESTRAIL_DOMAIN=https://domain.testrail.com
+TESTRAIL_USER=user@coupa.com
+TESTRAIL_KEY=api_key
+GITHUB_TOKEN=ghp_xx
 ```
 
 7.  Optionally, link the CLI globally for easier use:
@@ -59,6 +60,7 @@ npm link
 ### For Usage (Production):
 
 1.  Download the packaged release version from the **Releases** section.
+2.  Move the package to /usr/local/bin and rename it to gitrail-cli
 2.  Place your environment variables from `.sample.env` into your `~/.zshrc` or `~/.bashrc`.
 3.  Reload your shell session:
 
