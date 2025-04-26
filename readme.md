@@ -83,7 +83,3 @@ gitrail-cli cases [repoBranch] -g <pullRequestId>
 *   Fails gracefully with "Failed to Process case, Please Try Again" if JSON cannot be extracted.
 
 - - -
-
-## 📜 License
-
-MIT License.
