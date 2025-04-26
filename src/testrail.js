@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 const axios = require('axios');
 const dotenv = require('dotenv');
-const { is_debug } = require('./helpers/env_helper.js');
-const { createLoader, green, cyan } = require('./helpers/text_style.js');
-const { getCLINote } = require('./helpers/cli_notes.js');
+const { is_debug } = require('../helpers/env_helper.js');
+const { createLoader, green, cyan } = require('../helpers/text_style.js');
+const { getCLINote } = require('../helpers/cli_notes.js');
 
 dotenv.config();
 const { TESTRAIL_DOMAIN, TESTRAIL_USER: EMAIL, TESTRAIL_KEY: API_KEY } = process.env;
@@ -12,18 +12,10 @@ const categoryValues = {
     '1': 'Functional (UI)',
     '2': 'Functional (Request)',
     '3': 'Integration (API/CSV/CXML/SFTP/Export)',
-    '4': 'Notification (Auto-Reminders/Escalations)',
-    '5': 'Systems (Background/OS/Security/Platform)',
     '6': 'Unit Test',
     '7': 'Unit-UI Test',
     '8': 'API',
     '9': 'CXML',
-    '10': 'SFTP',
-    '11': 'UI bulk load',
-    '12': 'Localization',
-    '13': 'DB Migration',
-    '14': 'Hulk',
-    '15': 'E2E-Smoke'
   };
 
 const auth = Buffer.from(`${EMAIL}:${API_KEY}`).toString('base64');

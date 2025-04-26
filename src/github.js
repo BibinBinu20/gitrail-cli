@@ -2,8 +2,8 @@ const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 const { Octokit } = require('@octokit/core');
 const { sendRequestToClaude } = require('./gen-ai.js');
-const { is_debug } = require('./helpers/env_helper.js');
-const { green, cyan, createLoader } = require('./helpers/text_style.js');
+const { is_debug } = require('../helpers/env_helper.js');
+const { green, cyan, createLoader } = require('../helpers/text_style.js');
 
 dotenv.config();
 

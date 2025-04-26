@@ -1,4 +1,4 @@
-const { green, cyan , red , magenta } = require('./helpers/text_style.js');
+const { green, cyan , red , magenta } = require('./text_style.js');
 function displayBanner(){
     console.log(cyan(`
         ██████╗  ██╗████████╗ ██████╗  █████╗ ██╗██╗     

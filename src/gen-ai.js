@@ -1,7 +1,7 @@
 const { BedrockRuntimeClient, InvokeModelCommand } = require("@aws-sdk/client-bedrock-runtime");
 const dotenv = require('dotenv');
-const { is_debug } = require('./helpers/env_helper.js');
-const { green, cyan } = require('./helpers/text_style.js');
+const { is_debug } = require('../helpers/env_helper.js');
+const { green, cyan } = require('../helpers/text_style.js');
 
 dotenv.config();
 

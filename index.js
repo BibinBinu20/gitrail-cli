@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 const { Command } = require('commander');
 const dotenv = require('dotenv');
-const { getCasesByTicket, createCasesInTestRail, createSection } = require('./testrail.js');
-const { processPullRequestDetails } = require("./github.js");
-const { displayBanner } = require('./banner.js');
+const { getCasesByTicket, createCasesInTestRail, createSection } = require('./src/testrail.js');
+const { processPullRequestDetails } = require("./src/github.js");
+const { displayBanner } = require('./helpers/banner.js');
 
 dotenv.config();
 const program = new Command();
