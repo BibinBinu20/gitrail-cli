@@ -104,7 +104,7 @@ function extractJsonBlock(text) {
       const parsedResponse = JSON.parse(responseBody);
       const jsonText = parsedResponse?.content?.[0]?.text;
   
-      is_debug() && console.log("✅ AI Response : \n", jsonText);
+      is_debug() && console.log("\n✅ AI Response : \n", jsonText);
   
       if (jsonText) {
         try {
@@ -120,7 +120,7 @@ function extractJsonBlock(text) {
           }
         }
       } else {
-        throw new Error("Empty AI Response.");
+        throw new Error("❗️ Invalid Response ❗️");
       }
     } catch (error) {
       console.error("❌ Error making request to Claude : ", error.message || error);
