@@ -113,7 +113,7 @@ function extractJsonBlock(text) {
           return parsedJson;
         } catch (parseError) {
           if (!isRetry) {
-            console.warn("⚠️ First parse failed. Retrying once...");
+            console.warn("\n ⚠️ First parse failed. Retrying once again...\n");
             return await sendRequestToClaude(diff, true);
           } else {
             throw new Error("Failed to Process case, Please Try Again.");
