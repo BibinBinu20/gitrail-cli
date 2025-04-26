@@ -3,6 +3,7 @@ const axios = require('axios');
 const dotenv = require('dotenv');
 const { is_debug } = require('./helpers/env_helper.js');
 const { createLoader, green, cyan } = require('./helpers/text_style.js');
+const { getCLINote } = require('./helpers/cli_notes.js');
 
 dotenv.config();
 const { TESTRAIL_DOMAIN, TESTRAIL_USER: EMAIL, TESTRAIL_KEY: API_KEY } = process.env;
@@ -115,7 +116,7 @@ async function createTestCase(suiteId, sectionId, testCase) {
       custom_preconds: testCase.preconditions,
       custom_steps: testCase.steps.map((step, index) => `${index + 1}. ${step}`).join('\n'),
       custom_test_data: testCase.testData,
-      custom_comments: testCase.comments,
+      custom_comments: `${testCase.comments || ''}\n\n${getCLINote()}`,
       custom_release_no: 97
     };
         let response = await api.post(`/add_case/${sectionId}`, body);
