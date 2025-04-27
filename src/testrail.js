@@ -115,21 +115,42 @@ async function createTestCase(suiteId, sectionId, testCase, releaseId) {
   }
   
   
-async function createCasesInTestRail(projectId, suiteId, sectionId, addedTests) {
-    console.log(`🧪 Creating ${addedTests.length} test case(s) in TestRail... \n`);
-    
+  async function createCasesInTestRail(projectId, suiteId, sectionId, addedTests) {
+    console.log(`🧪 Creating ${addedTests.length} test case(s) in TestRail...\n`);
+  
     let releaseId = await detectReleaseFromSection(sectionId);
+    let failedCases = [];
+  
     for (let testCase of addedTests) {
-      try {
-        let created = await createTestCase(suiteId, sectionId, testCase, releaseId);
-        console.log(`✅ Created: ${created.title} (ID: ${created.id})\n`);
-      } catch (err) {
-        console.error(err);
+      let created = false;
+      let attempts = 0;
+  
+      while (attempts < 2 && !created) {
+        try {
+          attempts++;
+          let result = await createTestCase(suiteId, sectionId, testCase, releaseId);
+          console.log(`✅ Created: ${result.title} (ID: ${result.id})\n`);
+          created = true;
+        } catch (err) {
+          console.error(`🚨 Attempt ${attempts} failed for test case: ${testCase.name}`, is_debug() ? (err.response?.data || err.message) : "", "\n");
+  
+          if (attempts === 2) {
+            console.error(`❌ Skipping test case after 2 failed attempts: ${testCase.name}\n`);
+            failedCases.push(testCase.name);
+          } else {
+            console.log(`🔄 Retrying adding test case: ${testCase.name}...\n`);
+          }
+        }
       }
     }
-    console.log(`🟢 ${green("All test cases are added to TestRail")} \n`);
   
+    if (failedCases.length === 0) {
+      console.log(`🟢 ${green("All test cases added successfully in TestRail")} \n`);
+    } else {
+      console.log(`🔴 ${cyan("Some test cases failed to create:")} ${failedCases.join(', ')}\n`);
+    }
   }
+  
 
   async function createSection(projectId, suiteId, parentSectionId, sectionName) {
     try {
