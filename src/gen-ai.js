@@ -9,7 +9,7 @@ const AWS_REGION = process.env.AWS_REGION;
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
-const CLAUDE_MODEL_ID = "us.anthropic.claude-3-7-sonnet-20250219-v1:0";
+const CLAUDE_MODEL_ID = process.env.CLAUDE_MODEL;
 
 const client = new BedrockRuntimeClient({
   region: AWS_REGION,

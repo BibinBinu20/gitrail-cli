@@ -44,11 +44,11 @@ cp .sample.env .env
 export AWS_REGION=your-region
 export AWS_ACCESS_KEY_ID=your-key
 export AWS_SECRET_ACCESS_KEY=your-secret
-CLAUDE_MODEL=us.anthropic.xx-model
-TESTRAIL_DOMAIN=https://domain.testrail.com
-TESTRAIL_USER=user@coupa.com
-TESTRAIL_KEY=api_key
-GITHUB_TOKEN=ghp_xx
+export CLAUDE_MODEL=us.anthropic.xx-model
+export TESTRAIL_DOMAIN=https://domain.testrail.com
+export TESTRAIL_USER=user@coupa.com
+export TESTRAIL_KEY=api_key
+export GITHUB_TOKEN=ghp_xx
 ```
 
 7.  Optionally, link the CLI globally for easier use:
