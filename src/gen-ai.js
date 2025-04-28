@@ -89,7 +89,7 @@ function extractJsonBlock(text) {
             content: masterPrompt + diff,
           },
         ],
-        max_tokens: 1000,
+        max_tokens: 8000,
       };
   
       const command = new InvokeModelCommand({
@@ -103,7 +103,7 @@ function extractJsonBlock(text) {
       const responseBody = await response.body.transformToString();
       const parsedResponse = JSON.parse(responseBody);
       const jsonText = parsedResponse?.content?.[0]?.text;
-  
+
       is_debug() && console.log("\n✅ AI Response : \n", jsonText);
   
       if (jsonText) {
